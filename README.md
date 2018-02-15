@@ -1,17 +1,18 @@
 # Machine-Learning-Assignment-2
 
 
-Snake Case for functions:
+**Snake Case for functions:**
 
 Ex: func_name(~) 
 
-Camel case for variables:
+**Camel case for variables:**
+
 Ex: variableName
 
-global variables:
+**Global Variables:**
 
 Ex: GLOBAL_VARIABLE
 
 
-Commenting:
+**Commenting:**
 - dimensions of the matrices that are used
