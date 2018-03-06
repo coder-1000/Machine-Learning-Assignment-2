@@ -23,13 +23,15 @@ with np.load("notMNIST.npz") as data :
 
 PIXELS = 784;#image is 28 by 28
 NUM_ITERATIONS = 20000; #20000
-LEARNING_RATE = 0.005;# change learning rate to an array .............
+LEARNING_RATE = [0.005, 0.001, 0.0001];
 BATCH_SIZE = 500;
 NUM_BATCHES = 7;
 
 trainX = np.reshape(trainData, (3500, PIXELS) );
+trainY = trainTarget.astype(np.float64);
+
 batchesX = np.array(np.split(trainX, NUM_BATCHES));
-batchesY = np.array(np.split(trainTarget, NUM_BATCHES));
+batchesY = np.array(np.split(trainY, NUM_BATCHES));
 
 x = tf.placeholder(tf.float64, [BATCH_SIZE, PIXELS], name="input_points");
 y = tf.placeholder(tf.float64, [BATCH_SIZE, 1], name="targets");
@@ -53,19 +55,22 @@ print("this is the shape of trainX: ", trainX.shape);
 print("this is the shape of batchesX: ", batchesX.shape);
 print("this is the shape of batchesY: ", batchesY.shape);
 
-print("this is the shape of a batch: ", batchesX[2].shape);
-print("this is the type of a batch: ", batchesX.dtype);
+print("this is the shape of a batchX: ", batchesX[2].shape);
+print("this is the type of a batchX: ", batchesX.dtype);
 
-sgdOptimizer = tf.train.GradientDescentOptimizer(LEARNING_RATE).minimize(loss);
+print("this is the shape of a batchY: ", batchesY.shape);
+print("this is the type of a batchY: ", batchesY.dtype);
+
 with tf.Session() as sess:
-    sess.run(initializer);
-    for i in range(NUM_ITERATIONS*NUM_BATCHES):
-        sess.run(sgdOptimizer, feed_dict={x: batchesX[i%NUM_BATCHES] , y: batchesY[i%NUM_BATCHES]});       
-        if( i % 3500 == 0):
-            print("iteration: ", i);
-            #print(sess.run(loss, feed_dict={x: batchesX[i%NUM_BATCHES] , y: batchesY[i%NUM_BATCHES]} ) )
+   sess.run(initializer);  
+   for learningRate in LEARNING_RATE:
+        sgdOptimizer = tf.train.GradientDescentOptimizer(learningRate).minimize(loss);
+        for i in range(NUM_ITERATIONS*NUM_BATCHES):
+            sess.run(sgdOptimizer, feed_dict={x: batchesX[i%NUM_BATCHES] , y: batchesY[i%NUM_BATCHES]});       
+            if( i % 10000 == 0):
+                print("iteration: ", i);
                      
-    #print(sess.run(w));
-    print(sess.run(loss, feed_dict={x: batchesX[i%NUM_BATCHES] , y: batchesY[i%NUM_BATCHES]} ) )
+        #print(sess.run(w));
+        print(sess.run(loss, feed_dict={x: batchesX[i%NUM_BATCHES] , y: batchesY[i%NUM_BATCHES]} ) )
 
 
