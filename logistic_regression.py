@@ -37,6 +37,7 @@ with np.load("notMNIST.npz") as data :
     validData, validTarget = Data[3500:3600], Target[3500:3600]
     testData, testTarget = Data[3600:], Target[3600:]
 
+
 ################Manipulating Data##########################
 
 trainX = np.reshape(trainData, (NUM_TRAINING_POINTS, PIXEL_SIZE));
