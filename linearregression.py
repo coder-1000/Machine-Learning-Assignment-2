@@ -28,7 +28,7 @@ NUM_LR = 3;
 BATCH_SIZE = 500;
 NUM_BATCHES = 7;
 
-trainX = np.reshape(trainData, (3500, PIXELS) );
+trainX = np.reshape(trainData, (3500, -1) );
 trainY = trainTarget.astype(np.float64);
 
 batchesX = np.array(np.split(trainX, NUM_BATCHES));
@@ -52,12 +52,12 @@ for learningRate in LEARNING_RATE:
     #reset w and b
     tf.reset_default_graph();
 
-    x = tf.placeholder(tf.float64, [BATCH_SIZE, PIXELS], name="input_points");
-    y = tf.placeholder(tf.float64, [BATCH_SIZE, 1], name="targets");
+    x = tf.placeholder(tf.float64, name="input_points");
+    y = tf.placeholder(tf.float64, name="targets");
 
     #initialize values to all 1
-    w = tf.Variable( np.ones((PIXELS,1), np.float64) ); #784 x 1 containing weights
-    b = tf.Variable(tf.constant(1,tf.float64), tf.float64); #offset
+    w = tf.Variable( np.zeros((PIXELS,1), np.float64) ); #784 x 1 containing weights
+    b = tf.Variable(tf.constant(0,tf.float64), tf.float64); #offset
 
 
     # (500x784) X (784x1) => (500x1) 
@@ -67,7 +67,7 @@ for learningRate in LEARNING_RATE:
     #(500x1) => (1)
     loss = tf.reduce_mean((y - yhat)**2)/2  ; #check dimensions
 
-    lossValues = np.empty([NUM_LR, NUM_ITERATIONS], np.float64);
+    lossValues = [];
 
     #initialize global vars. need to do this to use variables
     initializer = tf.global_variables_initializer();
@@ -75,35 +75,42 @@ for learningRate in LEARNING_RATE:
     with tf.Session() as sess:
         sess.run(initializer);  
         
-        print('sanity checks 1');
-        print(sess.run(b, feed_dict={x: batchesX[0] , y: batchesY[0]}));
-        print(sess.run(tf.reduce_sum(w),feed_dict={x: batchesX[0] , y: batchesY[0]}));
-        print(sess.run(tf.reduce_mean(w),feed_dict={x: batchesX[0] , y: batchesY[0]}));
+        #print('sanity checks 1');
+        #print(sess.run(b, feed_dict={x: batchesX[0] , y: batchesY[0]}));
+        #print(sess.run(tf.reduce_sum(w),feed_dict={x: batchesX[0] , y: batchesY[0]}));
+        #print(sess.run(tf.reduce_mean(w),feed_dict={x: batchesX[0] , y: batchesY[0]}));
             
         #set up optimizer
         sgdOptimizer = tf.train.GradientDescentOptimizer(learningRate).minimize(loss);
         
         #descend the gradient 
-        for i in range(NUM_ITERATIONS*NUM_BATCHES):
+        for i in range(NUM_ITERATIONS):
             sess.run(sgdOptimizer, feed_dict={x: batchesX[i%NUM_BATCHES] , y: batchesY[i%NUM_BATCHES]});       
-            if( (i % NUM_BATCHES) == 0 and (i != 0) ):
-                lossValues[lrNum][i/NUM_BATCHES] = sess.run(loss, feed_dict={x: batchesX[i%NUM_BATCHES] , y: batchesY[i%NUM_BATCHES]} );
-            if(i % 20000 == 0):    
-                print("iteration: ", i);
-                print(lossValues[lrNum][i/NUM_BATCHES]);
-       
-        print('sanity checks 2');
-        print(sess.run(b, feed_dict={x: batchesX[0] , y: batchesY[0]}));
-        print(sess.run(tf.reduce_sum(w),feed_dict={x: batchesX[0] , y: batchesY[0]}));
-        print(sess.run(tf.reduce_mean(w),feed_dict={x: batchesX[0] , y: batchesY[0]}));
+            #print(sess.run(loss,  feed_dict={x: batchesX[i%NUM_BATCHES] , y: batchesY[i%NUM_BATCHES]}));
+            if( ( (i+1) % NUM_BATCHES) == 0 ):
+                err = sess.run(loss, feed_dict={x: batchesX[i%NUM_BATCHES] , y: batchesY[i%NUM_BATCHES]} );      
+                lossValues.append(err);
+                #print(err);
+
+        #print('sanity checks 2');
+        #print(sess.run(b, feed_dict={x: batchesX[0] , y: batchesY[0]}));
+        #print(sess.run(tf.reduce_sum(w),feed_dict={x: batchesX[0] , y: batchesY[0]}));
+        #print(sess.run(tf.reduce_mean(w),feed_dict={x: batchesX[0] , y: batchesY[0]}));
         
-        print('\nloss\n');
-        print(sess.run(loss, feed_dict={x: batchesX[i%NUM_BATCHES] , y: batchesY[i%NUM_BATCHES]} ) )
+        #print('\nloss\n');
+        print(sess.run(loss, feed_dict={x: trainX, y: trainY} ) );
         lrNum+=1;
         
-xAxis = np.arange(1,NUM_ITERATIONS+1 );
-plt.plot(xAxis, lossValues[0], 'k.-', xAxis, lossValues[1], 'b--', xAxis, lossValues[2], 'k--');
+        yVals = np.array(lossValues);
+        #print(yVals);
+        #print(lossValues);
+        xVals = np.arange(NUM_ITERATIONS//7);
+        legend = str(learningRate);
+        #print(legend);
+        plt.plot(xVals, yVals, label=legend );
+
 plt.xlabel('iteration');
 plt.ylabel('Error');
+plt.legend();        
 plt.title('Error vs. Iteration for Learning Rates');
 plt.show();
