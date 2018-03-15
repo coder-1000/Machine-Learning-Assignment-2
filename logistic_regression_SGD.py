@@ -49,6 +49,7 @@ batchesY = np.array(np.split(trainTarget, NUM_BATCHES));
 
 ################Defining variables########################
 
+#initialize arrays
 loss_Values = [[0 for x in range(NUM_BATCHES)] for y in range(715)]
 lr = dict()
 epoch_list = []
@@ -57,7 +58,7 @@ accuracy_list = []
 loss = []
 
 x = tf.placeholder(tf.float32, [PIXEL_SIZE, None], name = "input_points") #784 dimensions (28x28 pixels) 
-W = tf.Variable(tf.truncated_normal(shape=[PIXEL_SIZE,1], stddev=0.5), name='weights')
+W = tf.Variable(tf.truncated_normal(shape=[PIXEL_SIZE,1], stddev=0.5), name='weights') #initialize to non-zero value
 b = tf.Variable(0.0, name='bias')
 y = tf.placeholder(tf.float32, [None,1], name = "target_labels")#target labels
 lambda_ = 0.01
