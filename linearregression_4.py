@@ -38,29 +38,10 @@ validY = validTarget.astype(np.float64);
 testX = np.reshape(testData, (145, -1) );
 testY = testTarget.astype(np.float64);
 
-
-
-
-#making batches was stupid
-#batchesX = np.array(np.split(trainX, NUM_BATCHES));
-#batchesY = np.array(np.split(trainY, NUM_BATCHES));
-
-
-#print("this is the shape of trainX: ", trainX.shape);
-#print("this is the shape of batchesX: ", batchesX.shape);
-#print("this is the shape of batchesY: ", batchesY.shape);
-
-#print("this is the shape of a batchX: ", batchesX[2].shape);
-#print("this is the type of a batchX: ", batchesX.dtype);
-
-#print("this is the shape of a batchY: ", batchesY.shape);
-#print("this is the type of a batchY: ", batchesY.dtype);
 bias = np.ones((3500,1), np.float64);
 trainXBias = np.concatenate((bias,trainX), 1);
 lamda = 0.001;
 
-#print(trainXBias.shape);
-#print(trainXBias[0]);
 
 x = tf.placeholder(tf.float64, name="input_points_with_bias");
 y = tf.placeholder(tf.float64, name="targets");
@@ -72,7 +53,7 @@ b = wstar[0];
 w = wstar[1:];
 
 yhat = tf.add(tf.matmul(xReal,w), b); 
-loss = tf.reduce_mean(((y - yhat)**2 )/2) + tf.reduce_sum(w**2)*(lamda/2)
+loss = tf.reduce_mean(((y - yhat)**2 )/2); 
 
 print(tf.Session().run(loss, feed_dict={x: trainXBias, y: trainY, xReal: trainX}) );
 
