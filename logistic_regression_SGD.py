@@ -64,20 +64,17 @@ lambda_ = 0.01
 
 ##############Calculations###############################
 
-#weight_squared_sum = tf.matmul(tf.transpose(W),W) #find the square of the weight vector
-#calculating the bias term
-
 with tf.Session() as sess:
     tf.global_variables_initializer().run()
     weight = W.eval()
 
-weight_squared_sum = np.linalg.norm(weight)
-loss_W = lambda_ /2 * weight_squared_sum #find the loss
+weight_squared_sum = np.linalg.norm(weight) #take the magnitude of weight vector
+loss_W = lambda_ /2 * weight_squared_sum  #find the loss
 
 y_hat = tf.add(tf.matmul(tf.transpose(W), x), b) #based on the sigmoid equation given in lab handout (logits)
 y_hat = tf.transpose(y_hat)
-cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(logits = y_hat, labels = y) #sigmoid_cross_entropy_with_logits takes in the actual y and the predicted y 
-total_loss = tf.add(tf.reduce_mean(cross_entropy,0),loss_W) #does it matter if this is 1 or 0?
+cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(logits = y_hat, labels = y) #find cross_entropy loss 
+total_loss = tf.add(tf.reduce_mean(cross_entropy,0),loss_W) 
 
 #############Training######################################
 epoch = 0
@@ -86,7 +83,9 @@ with tf.Session() as sess:
     tf.global_variables_initializer().run()
     
     for learning_rate in LEARNING_RATE:
-        train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(total_loss) #change the learning rate each time
+	#find the trainign step with gradient descent and minimize the loss
+	#change the learning rate each time
+        train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(total_loss) 
         for i in range(NUM_BATCHES*NUM_ITERATIONS):  
             #at each batch, store the loss and average over the loss vector
             temp = sess.run(cross_entropy, feed_dict={x:np.transpose(batchesX[i%NUM_BATCHES]), y: batchesY[i%NUM_BATCHES]})
@@ -103,27 +102,23 @@ with tf.Session() as sess:
                 #find prediction and compare with actual value to find accuracy
                 y_hat_new = tf.sigmoid(y_hat)
                 y_hat_new = sess.run(y_hat_new,feed_dict={x: np.transpose(validX), y: validTarget})
-                print("Epoch:", epoch)
+                
+		print("Epoch:", epoch)
                 print("Learning Rate:", learning_rate)
 
-				#print("i", i)
-                #print("Y_HAT:")
                 y_hat_new = np.around(y_hat_new)
-                #print(y_hat_new)
-                #print("Y:")
                 y_new = sess.run(y,feed_dict = {y: validTarget})
                 y_new = np.around(y_new)
                 #print(y_new)
                 correct_prediction = np.equal(y_new, y_hat_new)
                 accuracy = np.mean(correct_prediction)
                 
-                print("ACCURACY:")
+                print("Accuracy:")
                 print(accuracy)
-                print("LOSS_VALUES")
+                print("Loss Values:")
                 print(loss_val)
         
                 accuracy_list.append(accuracy) 
-                #print("Accuracy_list", accuracy_list)
                 epoch = epoch + 1;
                 
                 #reset the loss list
@@ -133,8 +128,8 @@ with tf.Session() as sess:
 
 
 
-    #for plotting
-	epoch_list = [x for x in range(715)]
+    #for plotting convert to numpy arrays
+    epoch_list = [x for x in range(715)]
     epoch_list = np.array(epoch_list)
     mean_list = np.array(mean_list)
     accuracy_list = np.array(accuracy_list)
@@ -142,6 +137,7 @@ with tf.Session() as sess:
     print("Accuracy list")
     print(accuracy_list)
 
+    #plot loss and accuracy
     plt.figure()
     plt.plot(epoch_list, accuracy_list, '-')
     plt.xlabel('Epochs')
