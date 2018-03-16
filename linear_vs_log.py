@@ -61,7 +61,8 @@ mseValues = []
 cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(logits = yhatCross, labels = y)
 
 crossLoss = tf.reduce_mean(cross_entropy);
-crossClassError = tf.reduce_mean( tf.abs( tf.round(yhatCross) - y) );
+crossClassError = tf.reduce_mean(tf.cast(tf.equal(y, tf.round(tf.sigmoid(yhatCross))), tf.float64))
+#tf.reduce_mean( tf.abs( tf.round(yhatCross) - y) );
 
 crossClassValues = []
 crossValues = []
@@ -95,11 +96,13 @@ with tf.Session() as sess:
             [mseClass, crossClass] = sess.run([mseClassError, crossClassError], feed_dict={x:trainX[start : end]  , y:trainY[start : end] });
             
             mseClassValues.append(mseClass);
-            crossClassValues.append(crossClass)
+            crossClassValues.append(1 - crossClass)
 
 
 
-
+plt.title("Accuracy of Linear vs Logistic")
+plt.xaxis("epochs")
+plt.yaxis("accuracy")
 plt.plot(mseClassValues, label="linear");
 plt.plot(crossClassValues, label = "logistic");
 plt.legend();
