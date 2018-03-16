@@ -50,7 +50,9 @@ yhatCross = tf.add(tf.matmul(x,wcross), bcross);
 
 #loss_d = wx + b - y    
 loss = tf.reduce_mean((y - yhat)**2)/2  ; #check dimensions
+mseClassError = tf.reduce_mean( tf.abs( tf.round(yhat) - y) );
 
+mseClassValues = []
 mseValues = []    
 
 
@@ -59,7 +61,9 @@ mseValues = []
 cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(logits = yhatCross, labels = y)
 
 crossLoss = tf.reduce_mean(cross_entropy);
+crossClassError = tf.reduce_mean( tf.abs( tf.round(yhatCross) - y) );
 
+crossClassValues = []
 crossValues = []
 
 #set up optimizer
@@ -88,11 +92,15 @@ with tf.Session() as sess:
             mseValues.append(mseloss);
             crossValues.append(crossError)
 
+            [mseClass, crossClass] = sess.run([mseClassError, crossClassError], feed_dict={x:trainX[start : end]  , y:trainY[start : end] });
+            
+            mseClassValues.append(mseClass);
+            crossClassValues.append(crossClass)
 
 
 
 
-plt.plot(mseValues, label="linear");
-plt.plot(crossValues, label = "logistic");
+plt.plot(mseClassValues, label="linear");
+plt.plot(crossClassValues, label = "logistic");
 plt.legend();
 plt.show();
