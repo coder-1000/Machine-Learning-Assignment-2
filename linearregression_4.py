@@ -40,7 +40,6 @@ testY = testTarget.astype(np.float64);
 
 bias = np.ones((3500,1), np.float64);
 trainXBias = np.concatenate((bias,trainX), 1);
-lamda = 0.001;
 
 
 x = tf.placeholder(tf.float64, name="input_points_with_bias");
@@ -55,5 +54,8 @@ w = wstar[1:];
 yhat = tf.add(tf.matmul(xReal,w), b); 
 loss = tf.reduce_mean(((y - yhat)**2 )/2); 
 
+start = time.time();
 print(tf.Session().run(loss, feed_dict={x: trainXBias, y: trainY, xReal: trainX}) );
 
+timeTaken = time.time() - start;
+print("time taken: " + str(timeTaken));
